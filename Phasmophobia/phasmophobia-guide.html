@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080c14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PhasmoGuide">
+<meta name="description" content="Guia completo de Phasmophobia: fantasmas, evidências, mapas, objetos amaldiçoados e carrinha ao vivo. Instala no PC e telemóvel, funciona offline.">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <title>Phasmophobia — Guia de Fantasmas</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
@@ -683,6 +691,9 @@
 <header>
   <div class="logo">Phasmo<span>Guide</span></div>
   <div class="tagline">Todos os Fantasmas · Evidências · Fraquezas · Dicas</div>
+  <button id="pwaInstallBtn" style="display:none;margin:14px auto 0;padding:10px 18px;border-radius:999px;border:1px solid rgba(79,255,176,0.3);background:rgba(79,255,176,0.12);color:#4fffb0;font-family:'Inter',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;backdrop-filter:blur(6px)">📲 Instalar no dispositivo</button>
+  <div id="pwaIosHint" style="display:none;margin-top:10px;font-size:0.78rem;color:#94a3b8;line-height:1.5">📱 No iPhone: toca em <span style="color:#fff">Partilhar</span> → <span style="color:#fff">Adicionar ao Ecrã Principal</span></div>
+  <div id="pwaInstalledMsg" style="display:none;margin-top:10px;font-size:0.78rem;color:#4fffb0">✓ App instalada — já funciona offline</div>
 </header>
 
 <nav>
@@ -2411,6 +2422,54 @@ loadSanity(); renderSanity(); loadProfile(); updateTimerDisplay();
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal(null);
 });
+</script>
+
+<!-- PWA: Service Worker + Install prompt -->
+<script>
+// regista SW (precisa servir via http://localhost ou https — não funciona em file://)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      console.log('[PWA] SW registado', reg.scope);
+    }).catch(err => console.warn('[PWA] SW falhou', err));
+  });
+}
+// install prompt
+let deferredPrompt = null;
+const installBtn = document.getElementById('pwaInstallBtn');
+const iosHint = document.getElementById('pwaIosHint');
+const installedMsg = document.getElementById('pwaInstalledMsg');
+function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+function isInStandalone() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!isInStandalone()) installBtn.style.display = 'inline-flex';
+});
+installBtn?.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('[PWA] install', outcome);
+  deferredPrompt = null;
+  installBtn.style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] instalada');
+  installBtn.style.display = 'none';
+  iosHint.style.display = 'none';
+  installedMsg.style.display = 'block';
+  deferredPrompt = null;
+});
+// mostra hint iOS se estiver em iOS e não instalado
+if (isIos() && !isInStandalone()) {
+  iosHint.style.display = 'block';
+}
+if (isInStandalone()) {
+  installedMsg.style.display = 'block';
+}
+// esconde botão se já instalado
+if (isInStandalone()) installBtn.style.display = 'none';
 </script>
 </body>
 </html>
