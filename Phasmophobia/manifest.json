@@ -1,8 +1,8 @@
 {
   "name": "Phasmophobia — Guia de Fantasmas",
   "short_name": "PhasmoGuide",
-  "description": "Guia completo de Phasmophobia: fantasmas, evidências, mapas, objetos amaldiçoados e carrinha ao vivo. Instalável e offline.",
-  "start_url": "./phasmophobia-guide.html",
+  "description": "Guia completo de Phasmophobia: 30 fantasmas, 7 evidências, 17 mapas e objetos amaldiçoados. Instalável e offline.",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
@@ -29,6 +29,9 @@
       "purpose": "any"
     }
   ],
-  "categories": ["games", "utilities"],
+  "categories": [
+    "games",
+    "utilities"
+  ],
   "screenshots": []
 }

@@ -1,7 +1,7 @@
-const CACHE_NAME = 'phasmo-guide-v1';
+const CACHE_NAME = 'phasmo-guide-v3';
 const ASSETS = [
   './',
-  './phasmophobia-guide.html',
+  './index.html',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -25,8 +25,6 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Skip bridge API
-  if (event.request.url.includes('localhost:8765')) return;
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
@@ -40,7 +38,7 @@ self.addEventListener('fetch', event => {
       }).catch(() => {
         // offline fallback for navigation
         if (event.request.mode === 'navigate') {
-          return caches.match('./phasmophobia-guide.html');
+          return caches.match('./index.html');
         }
       });
     })
